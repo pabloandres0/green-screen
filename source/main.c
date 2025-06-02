@@ -87,7 +87,21 @@ int main(int argc, char **argv)
 
 		if(kDown & KEY_START) break;
 
-		if(kDown & KEY_X && homeMenu){
+		//Set or disable tracking points with the Y button
+		if(kDown & KEY_Y)
+		{
+			if(showTrackingPoints)
+			{
+				showTrackingPoints = false;
+			}
+			else
+			{
+				showTrackingPoints = true;
+			}
+		}
+		
+		if(kDown & KEY_X && homeMenu)
+		{
 			if(colorLock){
 				colorLock = false;
 			}
@@ -99,7 +113,6 @@ int main(int argc, char **argv)
 		//Hotkey to change color to Green
 		if((kDown & KEY_DDOWN))
 		{
-			
 			if(!colorLock || homeMenu){
 				//chatgpt taught me the strcpy and strcmp to modify and compare arrays, which I fully understand now
 				strcpy(selectedColor, "Green");
@@ -222,32 +235,38 @@ int main(int argc, char **argv)
 		  C2D_DrawText(&colorText, C2D_AlignCenter| C2D_WithColor, 200, 50, 0.5, 0.6, 0.6, clrClear);
 		  C2D_TextBufDelete(colorBuf);
 
-		  //Display if colorLock is enabled
-		  if(colorLock){
-			C2D_TextBuf lockBuf = C2D_TextBufNew(256);
-			C2D_Text lockText;
-			C2D_TextParse(&lockText, lockBuf, "Color Lock ON");
-			C2D_TextOptimize(&lockText);
-			C2D_DrawText(&lockText, C2D_AlignRight | C2D_WithColor, 200, 75, 0.5, 0.5, 0.5, clrRed);
-			C2D_TextBufDelete(lockBuf);
-			
-		  }
+			if(colorLock){ //Display if colorLock is enabled
+				C2D_TextBuf lockBuf = C2D_TextBufNew(256);
+				C2D_Text lockText;
+				C2D_TextParse(&lockText, lockBuf, "Color Lock ON");
+				C2D_TextOptimize(&lockText);
+				C2D_DrawText(&lockText, C2D_AlignRight | C2D_WithColor, 200, 75, 0.5, 0.5, 0.5, clrRed);
+				C2D_TextBufDelete(lockBuf);
+			}
+
+			if(showTrackingPoints){ //Show tracking points status on home
+				C2D_TextBuf trackBuf = C2D_TextBufNew(256);
+				C2D_Text trackText;
+				C2D_TextParse(&trackText, trackBuf, "Tracking Points ON");
+				C2D_TextOptimize(&trackText);
+				C2D_DrawText(&trackText, C2D_AlignRight | C2D_WithColor, 200, 95, 0.5, 0.5, 0.5, clrBlue);
+				C2D_TextBufDelete(trackBuf);
+			}
+
+			//Shows press start to exit on the bottom screen
+			C2D_SceneBegin(bottom);
+
+			C2D_TextBuf exitBuf = C2D_TextBufNew(256);
+			C2D_Text exitText;
+			C2D_TextParse(&exitText, exitBuf, "Press START to exit");
+			C2D_TextOptimize(&exitText);
+			C2D_DrawText(&exitText, C2D_AlignCenter | C2D_WithColor, 160, 200, 0.5, 0.6, 0.6, clrClear);
+			C2D_TextBufDelete(exitBuf);
 
 
-		  //Shows press start to exit on the bottom screen
-		  C2D_SceneBegin(bottom);
-
-		  C2D_TextBuf exitBuf = C2D_TextBufNew(256);
-		  C2D_Text exitText;
-		  C2D_TextParse(&exitText, exitBuf, "Press START to exit");
-		  C2D_TextOptimize(&exitText);
-		  C2D_DrawText(&exitText, C2D_AlignCenter | C2D_WithColor, 160, 200, 0.5, 0.6, 0.6, clrClear);
-		  C2D_TextBufDelete(exitBuf);
-
-
-		  C3D_FrameEnd(0);
-		  //printf("\x1b[1;1H3DS Screen Color Changer");
-		  //printf("\x1b[3;1HSelected Color: %s", selectedColor);
+			C3D_FrameEnd(0);
+			//printf("\x1b[1;1H3DS Screen Color Changer");
+			//printf("\x1b[3;1HSelected Color: %s", selectedColor);
 
 		}
 		
@@ -338,12 +357,13 @@ int main(int argc, char **argv)
             if (strcmp(selectedColor, "Custom") == 0){
 				C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrCustom);
 			}
+
+
 			C3D_FrameEnd(0);
 		}
 			
 
 		}
-
 		
 		//Toggles the home menu screen
 		if (kDown & KEY_B)
@@ -383,9 +403,6 @@ void brickScreen(C3D_RenderTarget *top, C3D_RenderTarget *bottom){
 		C2D_DrawText(&brickText, C2D_AlignLeft| C2D_WithColor, 7, 7, 0.4, 0.4, 0.5, C2D_Color32(0xFF, 0xFF, 0x00, 0xFF));
 		C2D_TextBufClear(brickBuf);
 
-
-
-
     C2D_SceneBegin(bottom);
 	    C2D_Text bBrickText;
 		C2D_TextParse(&bBrickText, brickBuf, "BOOTROM 8046\nERRCODE:  00F800EF\n                 FFFFFFFF  FFFFFFFF\n                 0000000  0000000");
@@ -395,7 +412,10 @@ void brickScreen(C3D_RenderTarget *top, C3D_RenderTarget *bottom){
 		C2D_TextBufDelete(brickBuf);
 
 	C3D_FrameEnd(0);
+}
 
+void drawTrackingPoints(int screenWidth, int screenHeight) 
+{
 
 }
 
