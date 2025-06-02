@@ -3,5 +3,4 @@
 *.smdh
 *.lst
 build/
-romfs/
 image/
