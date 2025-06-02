@@ -24,6 +24,55 @@ void brickScreen(C3D_RenderTarget *top, C3D_RenderTarget *bottom);
 bool isHexColor(char *input);
 bool showTrackingPoints = false;
 
+//Move methods before the main loop
+
+//This determines if what was inputted on the keyboard was valid hex code OR a special word
+bool isHexColor(char *input)
+{
+  if(strcmp(input, "teedle") == 0 || strcmp(input, "teddle") == 0){
+	return true;
+  }
+	if(strlen(input) != 6){
+	return false;
+  }
+  //This searches through every chracter in the input array and checks if it not a valid hex code. Returns false if it is not
+  for(int i = 0; i < 6; i++){
+	//isxdigit is a method used to check for valid hexcode. Thank GOODNESS this exisits, idk what I would've done
+	if(!isxdigit(input[i])){
+		return false;
+	}
+  }
+  //Can return true at the end because if nothing at the top returned false, what was entered must be hex code or a special word.
+  return true;
+}
+
+void drawTrackingPoints(int screenWidth, int screenHeight, u32 color) 
+{
+    // Draw crosshairs at the four corners and center
+    int size = 8; // Size of crosshair lines
+    float thickness = 2.0f;
+    float depth = 0.5f;
+
+    // Center
+    C2D_DrawLine(screenWidth/2 - size, screenHeight/2, color, screenWidth/2 + size, screenHeight/2, color, thickness, depth);
+    C2D_DrawLine(screenWidth/2, screenHeight/2 - size, color, screenWidth/2, screenHeight/2 + size, color, thickness, depth);
+
+    // Top-left
+    C2D_DrawLine(0, 0, color, size, 0, color, thickness, depth);
+    C2D_DrawLine(0, 0, color, 0, size, color, thickness, depth);
+
+    // Top-right
+    C2D_DrawLine(screenWidth-1, 0, color, screenWidth-1-size, 0, color, thickness, depth);
+    C2D_DrawLine(screenWidth-1, 0, color, screenWidth-1, size, color, thickness, depth);
+
+    // Bottom-left
+    C2D_DrawLine(0, screenHeight-1, color, size, screenHeight-1, color, thickness, depth);
+    C2D_DrawLine(0, screenHeight-1, color, 0, screenHeight-1-size, color, thickness, depth);
+
+    // Bottom-right
+    C2D_DrawLine(screenWidth-1, screenHeight-1, color, screenWidth-1-size, screenHeight-1, color, thickness, depth);
+    C2D_DrawLine(screenWidth-1, screenHeight-1, color, screenWidth-1, screenHeight-1-size, color, thickness, depth);
+}
 
 int main(int argc, char **argv)
 {
@@ -52,6 +101,7 @@ int main(int argc, char **argv)
 	u32 clrBlue  = C2D_Color32(0x00, 0x00, 0xFF, 0xFF);
 	u32 clrCustom  = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
 	u32 clrClear = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
+	u32 clrTracking = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF); //Store value from tracking point color picker
 
     //Determines if the home menu is being displayed. This is NOT how you create different pages on an app is it... 
 	bool homeMenu = true;
@@ -358,6 +408,9 @@ int main(int argc, char **argv)
 				C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrCustom);
 			}
 
+			if(showTrackingPoints){
+				drawTrackingPoints(320, 240, clrTracking);
+			}
 
 			C3D_FrameEnd(0);
 		}
@@ -414,27 +467,3 @@ void brickScreen(C3D_RenderTarget *top, C3D_RenderTarget *bottom){
 	C3D_FrameEnd(0);
 }
 
-void drawTrackingPoints(int screenWidth, int screenHeight) 
-{
-
-}
-
-//This determines if what was inputted on the keyboard was valid hex code OR a special word
-bool isHexColor(char *input)
-{
-  if(strcmp(input, "teedle") == 0 || strcmp(input, "teddle") == 0){
-	return true;
-  }
-	if(strlen(input) != 6){
-	return false;
-  }
-  //This searches through every chracter in the input array and checks if it not a valid hex code. Returns false if it is not
-  for(int i = 0; i < 6; i++){
-	//isxdigit is a method used to check for valid hexcode. Thank GOODNESS this exisits, idk what I would've done
-	if(!isxdigit(input[i])){
-		return false;
-	}
-  }
-  //Can return true at the end because if nothing at the top returned false, what was entered must be hex code or a special word.
-  return true;
-}
