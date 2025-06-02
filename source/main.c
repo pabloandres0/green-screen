@@ -26,6 +26,32 @@ bool showTrackingPoints = false;
 
 //Move methods before the main loop
 
+//I learned how to create my own method! This is for showing the fake brick screen
+void brickScreen(C3D_RenderTarget *top, C3D_RenderTarget *bottom){
+	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+	C2D_TargetClear(top, C2D_Color32(0, 0, 255, 255));
+	C2D_TargetClear(bottom, C2D_Color32(0, 0, 255, 255));
+	C2D_SceneBegin(top);
+
+	C2D_TextBuf brickBuf = C2D_TextBufNew(1024);
+		C2D_Text brickText;
+		C2D_TextParse(&brickText, brickBuf, "BOOTROM 8046\nERRCODE:  00F800EF\n                 FFFFFFFF  FFFFFFFF\n                 0000000  0000000");
+        C2D_TextOptimize(&brickText);
+
+		C2D_DrawText(&brickText, C2D_AlignLeft| C2D_WithColor, 7, 7, 0.4, 0.4, 0.5, C2D_Color32(0xFF, 0xFF, 0x00, 0xFF));
+		C2D_TextBufClear(brickBuf);
+
+    C2D_SceneBegin(bottom);
+	    C2D_Text bBrickText;
+		C2D_TextParse(&bBrickText, brickBuf, "BOOTROM 8046\nERRCODE:  00F800EF\n                 FFFFFFFF  FFFFFFFF\n                 0000000  0000000");
+        C2D_TextOptimize(&bBrickText);
+
+		C2D_DrawText(&bBrickText, C2D_AlignLeft| C2D_WithColor, 5, 5, 0.35, 0.35, 0.5, C2D_Color32(0xFF, 0xFF, 0x00, 0xFF));
+		C2D_TextBufDelete(brickBuf);
+
+	C3D_FrameEnd(0);
+}
+
 //This determines if what was inputted on the keyboard was valid hex code OR a special word
 bool isHexColor(char *input)
 {
@@ -324,98 +350,101 @@ int main(int argc, char **argv)
 		else
 		{
 			if(!brick){
-			C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-			C2D_TargetClear(top, C2D_Color32(0, 0, 0, 255));
-			C2D_TargetClear(bottom, C2D_Color32(0, 0, 0, 255));
-		    C2D_SceneBegin(top);
-			if (strcmp(selectedColor, "Green") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 400, 240, clrGreen);
-			}
+				C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+				C2D_TargetClear(top, C2D_Color32(0, 0, 0, 255));
+				C2D_TargetClear(bottom, C2D_Color32(0, 0, 0, 255));
+				C2D_SceneBegin(top); //Rendering on top screen
+				if (strcmp(selectedColor, "Green") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 400, 240, clrGreen);
+				}
 
-			if (strcmp(selectedColor, "200,000") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 400, 240, C2D_Color32(0x20, 0x00, 0x00, 0xFF));
-				C2D_TextBuf tBuf = C2D_TextBufNew(256);
-				C2D_Text tText;
-				C2D_TextParse(&tText, tBuf, "Thank you for 200,000 Subscribers!");
-				C2D_TextOptimize(&tText);
-				C2D_DrawText(&tText, C2D_AlignCenter | C2D_WithColor, 200, 120, 0.5, 0.5, 0.5, clrClear);
-				C2D_TextBufDelete(tBuf);
-			}
+				if (strcmp(selectedColor, "200,000") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 400, 240, C2D_Color32(0x20, 0x00, 0x00, 0xFF));
+					C2D_TextBuf tBuf = C2D_TextBufNew(256);
+					C2D_Text tText;
+					C2D_TextParse(&tText, tBuf, "Thank you for 200,000 Subscribers!");
+					C2D_TextOptimize(&tText);
+					C2D_DrawText(&tText, C2D_AlignCenter | C2D_WithColor, 200, 120, 0.5, 0.5, 0.5, clrClear);
+					C2D_TextBufDelete(tBuf);
+				}
 
-			if (strcmp(selectedColor, "Teedle") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 400, 240, clrClear);
-				C2D_DrawSprite(&egg);
-			}
+				if (strcmp(selectedColor, "Teedle") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 400, 240, clrClear);
+					C2D_DrawSprite(&egg);
+				}
 
-			if (strcmp(selectedColor, "Teddle") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 400, 240, clrGreen);
-				C2D_DrawSprite(&egg);
-			}
+				if (strcmp(selectedColor, "Teddle") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 400, 240, clrGreen);
+					C2D_DrawSprite(&egg);
+				}
 
-			if (strcmp(selectedColor, "Red") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 400, 240, clrRed);
-			}
+				if (strcmp(selectedColor, "Red") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 400, 240, clrRed);
+				}
 
-			if (strcmp(selectedColor, "Blue") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 400, 240, clrBlue);
-			}
+				if (strcmp(selectedColor, "Blue") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 400, 240, clrBlue);
+				}
 
-            if (strcmp(selectedColor, "Custom") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 400, 240, clrCustom);
-			}
+				if (strcmp(selectedColor, "Custom") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 400, 240, clrCustom);
+				}
 
-			
-			C2D_SceneBegin(bottom);
-			if (strcmp(selectedColor, "Green") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrGreen);
-			}
-
-			if (strcmp(selectedColor, "200,000") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 400, 240, C2D_Color32(0x20, 0x00, 0x00, 0xFF));
-			}
-
-			if (strcmp(selectedColor, "Teedle") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrClear);
-				C2D_TextBuf tBuf = C2D_TextBufNew(256);
-				C2D_Text tText;
-				C2D_TextParse(&tText, tBuf, "Teedle says hi");
-				C2D_TextOptimize(&tText);
-				C2D_DrawText(&tText, C2D_AlignCenter | C2D_WithColor, 160, 100, 1, 1, 0.5, C2D_Color32(0x00, 0x00, 0x00, 0xFF));
-				C2D_TextBufDelete(tBuf);
+				if(showTrackingPoints)
+				{
+					drawTrackingPoints(400, 240, clrTracking);
+				}
 				
+				C2D_SceneBegin(bottom); //Rendering on bottom screen
+				if (strcmp(selectedColor, "Green") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrGreen);
+				}
+
+				if (strcmp(selectedColor, "200,000") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 400, 240, C2D_Color32(0x20, 0x00, 0x00, 0xFF));
+				}
+
+				if (strcmp(selectedColor, "Teedle") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrClear);
+					C2D_TextBuf tBuf = C2D_TextBufNew(256);
+					C2D_Text tText;
+					C2D_TextParse(&tText, tBuf, "Teedle says hi");
+					C2D_TextOptimize(&tText);
+					C2D_DrawText(&tText, C2D_AlignCenter | C2D_WithColor, 160, 100, 1, 1, 0.5, C2D_Color32(0x00, 0x00, 0x00, 0xFF));
+					C2D_TextBufDelete(tBuf);
+					
+				}
+
+				if (strcmp(selectedColor, "Teddle") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrGreen);
+					C2D_TextBuf tBuf = C2D_TextBufNew(256);
+					C2D_Text tText;
+					C2D_TextParse(&tText, tBuf, "Teddle says hi");
+					C2D_TextOptimize(&tText);
+					C2D_DrawText(&tText, C2D_AlignCenter | C2D_WithColor, 160, 100, 1, 1, 0.5, C2D_Color32(0x00, 0x00, 0x00, 0xFF));
+					C2D_TextBufDelete(tBuf);
+					
+				}
+
+				if (strcmp(selectedColor, "Red") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrRed);
+				}
+
+				if (strcmp(selectedColor, "Blue") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrBlue);
+				}
+
+				if (strcmp(selectedColor, "Custom") == 0){
+					C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrCustom);
+				}
+
+				if(showTrackingPoints)
+				{
+					drawTrackingPoints(320, 240, clrTracking);
+				}
+
+				C3D_FrameEnd(0);
 			}
-
-			if (strcmp(selectedColor, "Teddle") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrGreen);
-				C2D_TextBuf tBuf = C2D_TextBufNew(256);
-				C2D_Text tText;
-				C2D_TextParse(&tText, tBuf, "Teddle says hi");
-				C2D_TextOptimize(&tText);
-				C2D_DrawText(&tText, C2D_AlignCenter | C2D_WithColor, 160, 100, 1, 1, 0.5, C2D_Color32(0x00, 0x00, 0x00, 0xFF));
-				C2D_TextBufDelete(tBuf);
-				
-			}
-
-			if (strcmp(selectedColor, "Red") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrRed);
-			}
-
-			if (strcmp(selectedColor, "Blue") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrBlue);
-			}
-
-            if (strcmp(selectedColor, "Custom") == 0){
-				C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrCustom);
-			}
-
-			if(showTrackingPoints){
-				drawTrackingPoints(320, 240, clrTracking);
-			}
-
-			C3D_FrameEnd(0);
-		}
-			
-
 		}
 		
 		//Toggles the home menu screen
@@ -440,30 +469,3 @@ int main(int argc, char **argv)
 	gfxExit();
 	return 0;
 }
-
-//I learned how to create my own method! This is for showing the fake brick screen
-void brickScreen(C3D_RenderTarget *top, C3D_RenderTarget *bottom){
-	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-	C2D_TargetClear(top, C2D_Color32(0, 0, 255, 255));
-	C2D_TargetClear(bottom, C2D_Color32(0, 0, 255, 255));
-	C2D_SceneBegin(top);
-
-	C2D_TextBuf brickBuf = C2D_TextBufNew(1024);
-		C2D_Text brickText;
-		C2D_TextParse(&brickText, brickBuf, "BOOTROM 8046\nERRCODE:  00F800EF\n                 FFFFFFFF  FFFFFFFF\n                 0000000  0000000");
-        C2D_TextOptimize(&brickText);
-
-		C2D_DrawText(&brickText, C2D_AlignLeft| C2D_WithColor, 7, 7, 0.4, 0.4, 0.5, C2D_Color32(0xFF, 0xFF, 0x00, 0xFF));
-		C2D_TextBufClear(brickBuf);
-
-    C2D_SceneBegin(bottom);
-	    C2D_Text bBrickText;
-		C2D_TextParse(&bBrickText, brickBuf, "BOOTROM 8046\nERRCODE:  00F800EF\n                 FFFFFFFF  FFFFFFFF\n                 0000000  0000000");
-        C2D_TextOptimize(&bBrickText);
-
-		C2D_DrawText(&bBrickText, C2D_AlignLeft| C2D_WithColor, 5, 5, 0.35, 0.35, 0.5, C2D_Color32(0xFF, 0xFF, 0x00, 0xFF));
-		C2D_TextBufDelete(brickBuf);
-
-	C3D_FrameEnd(0);
-}
-
