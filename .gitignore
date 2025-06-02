@@ -1,6 +1,7 @@
 *.3dsx
 *.elf
 *.smdh
+*.lst
 build/
 romfs/
 image/
