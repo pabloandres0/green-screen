@@ -22,6 +22,7 @@
 
 void brickScreen(C3D_RenderTarget *top, C3D_RenderTarget *bottom);
 bool isHexColor(char *input);
+bool showTrackingPoints = false;
 
 
 int main(int argc, char **argv)
