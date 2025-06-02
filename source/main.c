@@ -17,12 +17,13 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#define SCREEN_WIDTH  400
+#define TOP_SCREEN_WIDTH  400
+#define BOTTOM_SCREEN_WIDTH  320
 #define SCREEN_HEIGHT 240
 
 void brickScreen(C3D_RenderTarget *top, C3D_RenderTarget *bottom);
 bool isHexColor(char *input);
-void drawTrackingPoints(int screenWidth, int screenHeight, u32 color);
+void drawTrackingPoints(int screenWidth, int screenHeight, u32 color, float markerXOffset, float markerYOffset);
 bool showTrackingPoints = false;
 
 
@@ -82,8 +83,29 @@ int main(int argc, char **argv)
     //initilizes keyboard (Most keyboard commands were taken from software-keyboard source code but I understand it now)
 	SwkbdState swkbd;
 
+	float markerXOffset = 0;
+	float markerYOffset = 0;
+
 	while (aptMainLoop())
 	{
+		circlePosition circlePad;
+		hidCircleRead(&circlePad);
+
+		// Adjust offsets based on circle pad input
+		markerXOffset -= circlePad.dx / 20;
+		markerYOffset += circlePad.dy / 20;
+
+		// Calculate maximum allowable offsets based on the current screen dimensions
+		float maxXOffsetTop = TOP_SCREEN_WIDTH / 2 - 8;  // Top screen width is 400
+		float maxXOffsetBottom = BOTTOM_SCREEN_WIDTH / 2 - 8;       // Bottom screen width is 320
+		float maxYOffset = SCREEN_HEIGHT / 2 - 8;   // Both screens have a height of 240
+
+		// Clamp offsets to prevent markers from going off-screen
+		if (markerXOffset < -maxXOffsetTop) markerXOffset = -maxXOffsetTop;
+		if (markerXOffset > maxXOffsetTop) markerXOffset = maxXOffsetTop;
+		if (markerYOffset < -maxYOffset) markerYOffset = -maxYOffset;
+		if (markerYOffset > maxYOffset) markerYOffset = maxYOffset;
+
 		hidScanInput();
 		u32 kDown = hidKeysDown();
 
@@ -281,7 +303,7 @@ int main(int argc, char **argv)
 			C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 			C2D_TargetClear(top, C2D_Color32(0, 0, 0, 255));
 			C2D_TargetClear(bottom, C2D_Color32(0, 0, 0, 255));
-		    C2D_SceneBegin(top);
+		    C2D_SceneBegin(top); //TOP SCREEN RENDERING
 			if (strcmp(selectedColor, "Green") == 0){
 				C2D_DrawRectSolid(0, 0, 0.0, 400, 240, clrGreen);
 			}
@@ -319,10 +341,10 @@ int main(int argc, char **argv)
 			}
 
 			if(showTrackingPoints) {
-				drawTrackingPoints(400, 240, clrTracking);
+				drawTrackingPoints(TOP_SCREEN_WIDTH, SCREEN_HEIGHT, clrTracking, markerXOffset, markerYOffset);
 			}
 			
-			C2D_SceneBegin(bottom);
+			C2D_SceneBegin(bottom); //BOTTOM SCREEN RENDERING
 			if (strcmp(selectedColor, "Green") == 0){
 				C2D_DrawRectSolid(0, 0, 0.0, 320, 240, clrGreen);
 			}
@@ -366,7 +388,7 @@ int main(int argc, char **argv)
 			}
 
 			if(showTrackingPoints) {
-				drawTrackingPoints(320, 240, clrTracking);
+				drawTrackingPoints(BOTTOM_SCREEN_WIDTH, SCREEN_HEIGHT, clrTracking, markerXOffset, markerYOffset);
 			}
 
 			C3D_FrameEnd(0);
@@ -452,30 +474,30 @@ bool isHexColor(char *input)
 
 }
 
-void drawTrackingPoints(int screenWidth, int screenHeight, u32 color) 
+void drawTrackingPoints(int screenWidth, int screenHeight, u32 color, float markerXOffset, float markerYOffset) 
 {
     // Draw crosshairs at the four corners and center
     int size = 8; // Size of crosshair lines
     float thickness = 2.0f;
     float depth = 0.5f;
 
-    // Center
-    C2D_DrawLine(screenWidth/2 - size, screenHeight/2, color, screenWidth/2 + size, screenHeight/2, color, thickness, depth);
-    C2D_DrawLine(screenWidth/2, screenHeight/2 - size, color, screenWidth/2, screenHeight/2 + size, color, thickness, depth);
+    // Center (does not move)
+    C2D_DrawLine(screenWidth / 2 - size, screenHeight / 2, color, screenWidth / 2 + size, screenHeight / 2, color, thickness, depth);
+    C2D_DrawLine(screenWidth / 2, screenHeight / 2 - size, color, screenWidth / 2, screenHeight / 2 + size, color, thickness, depth);
 
-    // Top-left
-    C2D_DrawLine(0, 0, color, size, 0, color, thickness, depth);
-    C2D_DrawLine(0, 0, color, 0, size, color, thickness, depth);
+    // Top-left (mirrored movement)
+    C2D_DrawLine(0 - markerXOffset, 0 - markerYOffset, color, size - markerXOffset, 0 - markerYOffset, color, thickness, depth);
+    C2D_DrawLine(0 - markerXOffset, 0 - markerYOffset, color, 0 - markerXOffset, size - markerYOffset, color, thickness, depth);
 
-    // Top-right
-    C2D_DrawLine(screenWidth-1, 0, color, screenWidth-1-size, 0, color, thickness, depth);
-    C2D_DrawLine(screenWidth-1, 0, color, screenWidth-1, size, color, thickness, depth);
+    // Top-right (mirrored movement)
+    C2D_DrawLine(screenWidth - 1 + markerXOffset, 0 - markerYOffset, color, screenWidth - 1 - size + markerXOffset, 0 - markerYOffset, color, thickness, depth);
+    C2D_DrawLine(screenWidth - 1 + markerXOffset, 0 - markerYOffset, color, screenWidth - 1 + markerXOffset, size - markerYOffset, color, thickness, depth);
 
-    // Bottom-left
-    C2D_DrawLine(0, screenHeight-1, color, size, screenHeight-1, color, thickness, depth);
-    C2D_DrawLine(0, screenHeight-1, color, 0, screenHeight-1-size, color, thickness, depth);
+    // Bottom-left (mirrored movement)
+    C2D_DrawLine(0 - markerXOffset, screenHeight - 1 + markerYOffset, color, size - markerXOffset, screenHeight - 1 + markerYOffset, color, thickness, depth);
+    C2D_DrawLine(0 - markerXOffset, screenHeight - 1 + markerYOffset, color, 0 - markerXOffset, screenHeight - 1 - size + markerYOffset, color, thickness, depth);
 
-    // Bottom-right
-    C2D_DrawLine(screenWidth-1, screenHeight-1, color, screenWidth-1-size, screenHeight-1, color, thickness, depth);
-    C2D_DrawLine(screenWidth-1, screenHeight-1, color, screenWidth-1, screenHeight-1-size, color, thickness, depth);
+    // Bottom-right (mirrored movement)
+    C2D_DrawLine(screenWidth - 1 + markerXOffset, screenHeight - 1 + markerYOffset, color, screenWidth - 1 - size + markerXOffset, screenHeight - 1 + markerYOffset, color, thickness, depth);
+    C2D_DrawLine(screenWidth - 1 + markerXOffset, screenHeight - 1 + markerYOffset, color, screenWidth - 1 + markerXOffset, screenHeight - 1 - size + markerYOffset, color, thickness, depth);
 }
